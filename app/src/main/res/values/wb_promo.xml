@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Watch Bridge flavor cross-promo (watch-bridge#5); not upstream strings, so no Weblate translations. -->
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+    <string name="wb_promo_weather">Weather on your watch: get Watch Bridge Weather (free)</string>
+    <string name="wb_promo_close">Close</string>
+</resources>

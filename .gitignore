@@ -83,3 +83,5 @@ __pycache__/
 
 # Kotlin LSP
 kls_database.db
+# Watch Bridge: host-only upload signing (life-stuff#98)
+keystore.properties

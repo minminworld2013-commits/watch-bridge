@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Watch Bridge Play build (admin/watch-bridge#5): drop Play-restricted permissions the
+     REDMI Watch 6 setup does not need, so production review only covers what we use.
+     - background location: the watch has its own GNSS
+     - QUERY_ALL_PACKAGES: the notification app list only needs launchable apps (<queries> below)
+     - RECEIVE_SMS / PROCESS_OUTGOING_CALLS: SMS arrives via the notification listener; outgoing call state not needed
+     Kept for now (companion-device exception): READ_CALL_LOG, SEND_SMS. -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" tools:node="remove" />
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" tools:node="remove" />
+    <uses-permission android:name="android.permission.RECEIVE_SMS" tools:node="remove" />
+    <uses-permission android:name="android.permission.PROCESS_OUTGOING_CALLS" tools:node="remove" />
+
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
+    </queries>
+</manifest>

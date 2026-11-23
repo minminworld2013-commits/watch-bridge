@@ -1,0 +1,43 @@
+# Watch Bridge (life-stuff#98) — same shape as personal_color / Mbtifit lanes,
+# but the build step is Gradle (Gadgetbridge is a Java app), not `flutter build`.
+#
+#   fastlane android build_android            # signed AAB
+#   fastlane android submit_internal          # build + versionCode guard + upload + release to internal + verify
+#
+# Needs: Java 21 (sdkman default 17 fails), host-only ../keystore.properties.
+
+ROOT = File.expand_path("..", __dir__)
+AAB  = File.join(ROOT, "app/build/outputs/bundle/watchbridgeRelease/app-watchbridge-release.aab")
+JAVA21 = "/opt/homebrew/Cellar/openjdk@21/21.0.10/libexec/openjdk.jdk/Contents/Home"
+PKG  = "com.minminworld.watchbridge"
+
+default_platform(:android)
+
+platform :android do
+  lane :build_android do
+    UI.user_error!("keystore.properties missing — refusing to build an unsigned AAB") unless File.exist?(File.join(ROOT, "keystore.properties"))
+    sh("cd #{ROOT} && JAVA_HOME=#{JAVA21} ./gradlew --no-daemon bundleWatchbridgeRelease", log: true)
+    # fail closed: must be signed with our upload key, not unsigned/debug
+    sh("jarsigner -verify #{AAB} >/dev/null", log: true)
+    sh("keytool -printcert -jarfile #{AAB} | grep -q 'CN=MINMINWORLD'", log: true)
+  end
+
+  lane :submit_internal do
+    build_android
+    vc = sh("bundletool dump manifest --bundle=#{AAB} --xpath /manifest/@android:versionCode").strip.to_i
+    existing = google_play_track_version_codes(track: "internal", package_name: PKG) rescue []
+    max = (existing || []).max || 0
+    UI.user_error!("versionCode #{vc} <= internal max #{max} — bump before upload") if vc <= max
+    upload_to_play_store(
+      track: "internal",
+      aab: AAB,
+      package_name: PKG,
+      release_status: "completed",  # was "draft": 2574/2575 sat unreleased for hours (watch-bridge#5, 2026-11-19)
+      skip_upload_metadata: true, skip_upload_images: true, skip_upload_screenshots: true, skip_upload_changelogs: true
+    )
+    # fail closed: a completed release replaces the old one, so the track must now be exactly [vc]
+    now = google_play_track_version_codes(track: "internal", package_name: PKG)
+    UI.user_error!("internal track is #{now.inspect}, expected [#{vc}] — release NOT live") unless now == [vc]
+    UI.success("internal track = [#{vc}] (released to testers)")
+  end
+end

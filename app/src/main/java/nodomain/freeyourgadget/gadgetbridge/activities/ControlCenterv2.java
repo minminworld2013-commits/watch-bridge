@@ -311,6 +311,7 @@ public class ControlCenterv2 extends AppCompatActivity
         AbstractGBActivity.init(this, AbstractGBActivity.NO_ACTIONBAR);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        PromoBanner.attach(this); // Watch Bridge flavor only (watch-bridge#5)
 
         GBPrefs prefs = GBApplication.getPrefs();
 
@@ -377,7 +378,11 @@ public class ControlCenterv2 extends AppCompatActivity
             // #6894 - when the bottom nav is not visible, the FAB would show up behind the system navbar
             // A bottom bar of the page applies the system navbar inset itself
             final int contentPaddingBottom = navigationView.getVisibility() == View.VISIBLE || pageBottomBarShown ? 0 : insets.bottom;
-            swipeLayout.setPadding(swipeLayout.getPaddingLeft(), swipeLayout.getPaddingTop(), swipeLayout.getPaddingRight(), contentPaddingBottom);
+            // Watch Bridge promo banner (watch-bridge#5) sits above the nav; without a nav it takes the inset
+            final View promo = findViewById(R.id.wb_promo_banner);
+            final boolean promoTakesInset = promo.getVisibility() == View.VISIBLE && contentPaddingBottom > 0;
+            promo.setPadding(promo.getPaddingLeft(), 0, promo.getPaddingRight(), promoTakesInset ? insets.bottom : 0);
+            swipeLayout.setPadding(swipeLayout.getPaddingLeft(), swipeLayout.getPaddingTop(), swipeLayout.getPaddingRight(), promoTakesInset ? 0 : contentPaddingBottom);
             navigationHeaderView.setPadding(headerPaddingLeft, insets.top, headerPaddingRight, headerPaddingBottom);
             return windowInsets;
         });

@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Context
+import android.content.pm.PackageManager
 import android.content.Intent
 import android.os.Build
 import android.provider.Settings
@@ -150,7 +151,16 @@ enum class GBPermission(
      * True if the permission is available to be granted on this phone.
      */
     open fun isAvailable(context: Context): Boolean {
-        return androidPermissions.isNotEmpty()
+        return declaredAndroidPermissions(context).isNotEmpty()
+    }
+
+    /**
+     * [androidPermissions] without the Android permissions this build's manifest does not declare
+     * (a flavor may remove some, e.g. Watch Bridge for Play policy, watch-bridge#5). Those can never be granted.
+     */
+    fun declaredAndroidPermissions(context: Context): List<String> {
+        val declared = declaredPermissions(context)
+        return androidPermissions.filter { !it.startsWith("android.permission.") || it in declared }
     }
 
     /**
@@ -161,7 +171,7 @@ enum class GBPermission(
         get() = androidPermissions.any { it in PermissionsUtils.specialPermissions }
 
     fun isGranted(context: Context): Boolean {
-        return androidPermissions.all { PermissionsUtils.checkPermission(context, it) }
+        return declaredAndroidPermissions(context).all { PermissionsUtils.checkPermission(context, it) }
     }
 
     open fun request(activity: Activity) {
@@ -180,7 +190,7 @@ enum class GBPermission(
     }
 
     private fun missingAndroidPermissions(context: Context): List<String> {
-        return androidPermissions.filterNot { PermissionsUtils.checkPermission(context, it) }
+        return declaredAndroidPermissions(context).filterNot { PermissionsUtils.checkPermission(context, it) }
     }
 
     companion object {
@@ -194,6 +204,15 @@ enum class GBPermission(
         const val EXTRA_PERMISSIONS = "permissions"
 
         private const val PREF_REQUESTED = "permissions_requested"
+
+        @Volatile
+        private var declaredCache: Set<String>? = null
+
+        private fun declaredPermissions(context: Context): Set<String> {
+            declaredCache?.let { return it }
+            val info = context.packageManager.getPackageInfo(context.packageName, PackageManager.GET_PERMISSIONS)
+            return (info.requestedPermissions?.toSet() ?: emptySet()).also { declaredCache = it }
+        }
 
         private val SPECIAL_ACCESSES = setOf(
             PermissionsUtils.CUSTOM_PERM_IGNORE_BATT_OPTIM,

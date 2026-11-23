@@ -114,6 +114,20 @@ android {
                 keyPassword = nightlyKeyPassword.orNull
             }
         }
+
+        // Watch Bridge upload key (app-factory pattern, life-stuff#98):
+        // host-only <repo>/keystore.properties (gitignored) -> ~/.fastlane/watchbridge-upload.jks
+        final def wbPropsFile = rootProject.file("keystore.properties")
+        if (wbPropsFile.exists()) {
+            final def wbProps = new Properties()
+            wbPropsFile.withInputStream { wbProps.load(it) }
+            create("watchbridgeUpload") {
+                storeFile = file(wbProps["storeFile"])
+                storePassword = wbProps["storePassword"]
+                keyAlias = wbProps["keyAlias"]
+                keyPassword = wbProps["keyPassword"]
+            }
+        }
     }
 
     flavorDimensions += "device_type"
@@ -134,6 +148,24 @@ android {
             versionNameSuffix = "-banglejs"
             buildConfigField("boolean", "INTERNET_ACCESS", "true")
             // Note: app/src/banglejs/AndroidManifest.xml contains some extra permissions
+        }
+
+        // Watch Bridge (admin/life-stuff#98): our Play identity. Same code as mainline (no INTERNET).
+        create("watchbridge") {
+            dimension = "device_type"
+            applicationId = "com.minminworld.watchbridge"
+            // Play requires targetSdk >= 36 for new uploads (2026-11-15 console error on vc 257).
+            // Upstream stays on 35; only our flavor moves.
+            targetSdk = 36
+            // Play versionCode = upstream versionCode * 10 + our rebuild number (0-9).
+            // vc 257 was used by the first draft upload; reset the last digit to 1 after each upstream bump.
+            // vc 2572 (2026-11-15): same code as 2571; rebuilt after Play automatic protection was turned off (it stripped R8 RecordTag -> startup crash on Galaxy S21/Android 15, watch-bridge#1).
+            // vc 2575 (2026-11-19): versionName now carries the versionCode ("-wb2575") so the About screen shows which build is installed (owner, watch-bridge#5).
+            versionCode = defaultConfig.versionCode * 10 + 5
+            versionNameSuffix = "-wb${versionCode}"
+            if (signingConfigs.findByName("watchbridgeUpload") != null) {
+                signingConfig = signingConfigs.getByName("watchbridgeUpload")
+            }
         }
     }
 

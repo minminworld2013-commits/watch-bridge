@@ -1,0 +1,3 @@
+# Watch Bridge (life-stuff#98) — app-factory pattern (flutter-app-template/fastlane/Appfile)
+json_key_file("~/.fastlane/google_play_key.json")   # host only
+package_name("com.minminworld.watchbridge")
