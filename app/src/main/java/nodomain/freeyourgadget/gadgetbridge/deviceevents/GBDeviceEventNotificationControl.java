@@ -68,8 +68,11 @@ public class GBDeviceEventNotificationControl extends GBDeviceEvent {
                 if (phoneNumber != null) {
                     LOG.info("Got notification reply for SMS from {} : {}", phoneNumber, reply);
                     if (ContextCompat.checkSelfPermission(context, Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
-                        LOG.warn("SMS permission not granted, unable to reply to {}", phoneNumber);
-                        return;
+                        // Watch Bridge Play build has no SEND_SMS (watch-bridge#5): fall back to the
+                        // messaging app's own notification reply action instead of dropping the reply.
+                        LOG.warn("SMS permission not granted, replying via notification action for {}", phoneNumber);
+                        action = NotificationListener.ACTION_REPLY;
+                        break;
                     }
                     SmsManager.getDefault().sendTextMessage(phoneNumber, null, reply, null, null);
                     return;

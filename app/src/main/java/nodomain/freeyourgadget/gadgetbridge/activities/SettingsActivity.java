@@ -476,7 +476,10 @@ public class SettingsActivity extends AbstractSettingsActivityV2 implements Acti
             }
 
             pref = findPreference("pref_category_healthconnect");
-            if (pref != null) {
+            if (pref != null && "watchbridge".equals(BuildConfig.FLAVOR)) {
+                // Watch Bridge Play build ships without Health Connect permissions (watch-bridge#5).
+                pref.setVisible(false);
+            } else if (pref != null) {
                 pref.setOnPreferenceClickListener(preference -> {
                     Intent enableIntent = new Intent(requireContext(), HealthConnectPreferencesActivity.class);
                     startActivity(enableIntent);

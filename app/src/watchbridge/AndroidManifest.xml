@@ -4,13 +4,47 @@
      - background location: the watch has its own GNSS
      - QUERY_ALL_PACKAGES: the notification app list only needs launchable apps (<queries> below)
      - RECEIVE_SMS / PROCESS_OUTGOING_CALLS: SMS arrives via the notification listener; outgoing call state not needed
-     Kept for now (companion-device exception): READ_CALL_LOG, SEND_SMS. -->
+     - SEND_SMS / READ_CALL_LOG (2026-11-23, owner OK on Talk #621): SMS & Call Log policy risk;
+       SMS replies go through the messaging app's notification reply action instead.
+     - Health Connect WRITE_* + its rationale alias (2026-11-23, owner OK on Talk #635): not in v1,
+       avoids the Play health apps declaration. The settings entry is hidden (SettingsActivity). -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" tools:node="remove" />
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" tools:node="remove" />
     <uses-permission android:name="android.permission.RECEIVE_SMS" tools:node="remove" />
     <uses-permission android:name="android.permission.PROCESS_OUTGOING_CALLS" tools:node="remove" />
+    <uses-permission android:name="android.permission.SEND_SMS" tools:node="remove" />
+    <uses-permission android:name="android.permission.READ_CALL_LOG" tools:node="remove" />
+    <uses-permission android:name="android.permission.health.WRITE_ACTIVE_CALORIES_BURNED" tools:node="remove" />
+    <uses-permission android:name="android.permission.health.WRITE_HEART_RATE" tools:node="remove" />
+    <uses-permission android:name="android.permission.health.WRITE_STEPS" tools:node="remove" />
+    <uses-permission android:name="android.permission.health.WRITE_EXERCISE" tools:node="remove" />
+    <uses-permission android:name="android.permission.health.WRITE_SLEEP" tools:node="remove" />
+    <uses-permission android:name="android.permission.health.WRITE_TOTAL_CALORIES_BURNED" tools:node="remove" />
+    <uses-permission android:name="android.permission.health.WRITE_DISTANCE" tools:node="remove" />
+    <uses-permission android:name="android.permission.health.WRITE_VO2_MAX" tools:node="remove" />
+    <uses-permission android:name="android.permission.health.WRITE_HEART_RATE_VARIABILITY" tools:node="remove" />
+    <uses-permission android:name="android.permission.health.WRITE_WEIGHT" tools:node="remove" />
+    <uses-permission android:name="android.permission.health.WRITE_OXYGEN_SATURATION" tools:node="remove" />
+    <uses-permission android:name="android.permission.health.WRITE_BODY_TEMPERATURE" tools:node="remove" />
+    <uses-permission android:name="android.permission.health.WRITE_SKIN_TEMPERATURE" tools:node="remove" />
+    <uses-permission android:name="android.permission.health.WRITE_ELEVATION_GAINED" tools:node="remove" />
+    <uses-permission android:name="android.permission.health.WRITE_SPEED" tools:node="remove" />
+    <uses-permission android:name="android.permission.health.WRITE_POWER" tools:node="remove" />
+    <uses-permission android:name="android.permission.health.WRITE_EXERCISE_ROUTE" tools:node="remove" />
+    <uses-permission android:name="android.permission.health.WRITE_RESPIRATORY_RATE" tools:node="remove" />
+    <uses-permission android:name="android.permission.health.WRITE_RESTING_HEART_RATE" tools:node="remove" />
+    <uses-permission android:name="android.permission.health.WRITE_BASAL_METABOLIC_RATE" tools:node="remove" />
+    <uses-permission android:name="android.permission.health.WRITE_BLOOD_GLUCOSE" tools:node="remove" />
+    <uses-permission android:name="android.permission.health.WRITE_BLOOD_PRESSURE" tools:node="remove" />
+    <uses-permission android:name="android.permission.health.WRITE_HYDRATION" tools:node="remove" />
+    <uses-permission android:name="android.permission.health.WRITE_STEPS_CADENCE" tools:node="remove" />
+    <uses-permission android:name="android.permission.health.WRITE_CYCLING_PEDALING_CADENCE" tools:node="remove" />
+
+    <application>
+        <activity-alias android:name="ViewPermissionUsageActivity" tools:node="remove" />
+    </application>
 
     <queries>
         <intent>

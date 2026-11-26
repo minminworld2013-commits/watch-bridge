@@ -161,7 +161,8 @@ android {
             // vc 257 was used by the first draft upload; reset the last digit to 1 after each upstream bump.
             // vc 2572 (2026-11-15): same code as 2571; rebuilt after Play automatic protection was turned off (it stripped R8 RecordTag -> startup crash on Galaxy S21/Android 15, watch-bridge#1).
             // vc 2575 (2026-11-19): versionName now carries the versionCode ("-wb2575") so the About screen shows which build is installed (owner, watch-bridge#5).
-            versionCode = defaultConfig.versionCode * 10 + 5
+            // vc 2576 (2026-11-24): SEND_SMS/READ_CALL_LOG and Health Connect removed for Play review (owner Talk #621/#635, watch-bridge#5).
+            versionCode = defaultConfig.versionCode * 10 + 6
             versionNameSuffix = "-wb${versionCode}"
             if (signingConfigs.findByName("watchbridgeUpload") != null) {
                 signingConfig = signingConfigs.getByName("watchbridgeUpload")
